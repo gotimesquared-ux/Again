@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PRO E-COMMERCE</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet" />
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Roboto Mono"', 'sans-serif'],
+                        mono: ['"Roboto Mono"', 'monospace'],
+                    },
+                    colors: {
+                        bg: 'var(--bg)',
+                        text: 'var(--text)',
+                        muted: 'var(--muted)',
+                        bordercolor: 'var(--bordercolor)',
+                        desc: 'var(--desc)',
+                        success: '#28A745',
+                        warning: '#d97706'
+                    },
+                    keyframes: {
+                        searchSlideIn: {
+                            '0%': { opacity: '0', transform: 'translateX(-10px)' },
+                            '100%': { opacity: '1', transform: 'translateX(0)' }
+                        }
+                    },
+                    animation: {
+                        searchSlideIn: 'searchSlideIn 0.3s cubic-bezier(0.25, 1, 0.5, 1)'
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style type="text/tailwindcss">
+        @layer base {
+            :root {
+                --bg: #ffffff;
+                --text: #000000;
+                --muted: #a0a0a0;
+                --bordercolor: #f3f4f6;
+                --desc: #4a4a4a;
+            }
+            .dark {
+                --bg: #121212;
+                --text: #ffffff;
+                --muted: #888888;
+                --bordercolor: #2a2a2a;
+                --desc: #cccccc;
+            }
+        }
+
+        @layer utilities {
+            .no-scrollbar::-webkit-scrollbar { display: none; }
+            .no-scrollbar { scrollbar-width: none; }
+            * { -webkit-tap-highlight-color: transparent; }
+            
+            .header-cat.active, .header-cat:hover { @apply text-text; }
+            .subcat.active, .subcat:hover { @apply text-text; }
+            .page-btn.active { @apply bg-text text-bg border-text; }
+            .tab-btn.active { @apply text-text border-b-2 border-text; }
+            .pill-btn.active { @apply bg-text text-bg border-text; }
+            
+            .is-fullscreen { @apply !fixed !inset-0 !w-[100vw] !h-[100dvh] !z-[9999] !bg-bg; }
+            .is-fullscreen .carousel-slide { @apply !p-0; }
+            .is-fullscreen .carousel-slide img { @apply !object-contain cursor-zoom-in origin-center will-change-transform; }
+            .is-fullscreen .carousel-slide img.zoomed { @apply cursor-grab; }
+            .is-fullscreen .carousel-slide img.zoomed:active { @apply cursor-grabbing; }
+            .is-fullscreen .carousel-btn, .is-fullscreen .img-counter { @apply !hidden; }
+        }
+    </style>
+</head>
+
+<body class="bg-bg text-text text-[15px] font-medium font-sans uppercase overflow-x-hidden antialiased select-none transition-colors duration-300 flex flex-col min-h-screen">
+
+<!-- 1. TOP BAR (Scrolls away) -->
+<div id="top-bar" class="w-full bg-bg z-40 flex flex-col border-b border-bordercolor transition-colors duration-300">
+    <div class="flex items-center justify-between w-full px-5 py-2 min-h-[45px]">
+        <div class="flex flex-col truncate w-[30%] md:w-[25%] shrink-0 text-left">
+            <span id="hdr-biz-name" class="font-bold text-[15px] uppercase truncate text-text">STORE</span>
+        </div>
+        <div class="flex justify-start md:justify-center gap-[15px] text-muted text-[12px] md:text-[13px] flex-1 overflow-x-auto no-scrollbar px-2 whitespace-nowrap" id="header-categories"></div>
+        <div class="flex justify-end items-center gap-4 w-[30%] md:w-[25%] shrink-0">
+            <button class="cursor-pointer font-bold text-[11px] text-text tracking-wide hover:opacity-70 transition-opacity" onclick="toggleCurrency()"><span class="currency-label">SW / TZS</span></button>
+            <button class="cursor-pointer text-text hover:opacity-70 transition-opacity" onclick="toggleTheme()">
+                <svg class="w-5 h-5 hidden dark:block" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+                <svg class="w-5 h-5 block dark:hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- 2. HERO BANNER -->
+<div id="hero-banner" class="w-full relative overflow-hidden aspect-[16/9] md:aspect-[21/9] hidden group bg-bordercolor shrink-0">
+    <!-- Rendered dynamically -->
+</div>
+
+<!-- 3. STICKY CONTROLS (Locks to top when scrolling) -->
+<div id="sticky-controls" class="sticky top-0 w-full bg-bg z-40 flex justify-between items-center px-5 py-2.5 gap-3 border-b border-bordercolor transition-colors duration-300 shadow-sm">
+    <div class="flex items-center gap-3 shrink-0">
+        <button class="relative flex items-center justify-center w-7 h-7 shrink-0 cursor-pointer text-text bg-transparent hover:opacity-70 transition-opacity" onclick="cycleGrid()">
+            <span class="material-symbols-outlined text-[24px]">grid_3x3</span>
+            <span id="grid-number-badge" class="absolute -bottom-1 -right-1 bg-text text-bg text-[9px] font-bold w-3.5 h-3.5 rounded-full flex items-center justify-center ring-2 ring-bg">3</span>
+        </button>
+        <div class="relative flex items-center shrink-0">
+            <button id="sort-toggle-btn" class="flex items-center gap-1 text-[11px] font-bold text-text bg-transparent cursor-pointer hover:opacity-70 transition-opacity" onclick="toggleSortMenu()">
+                <svg viewBox="0 0 24 24" class="w-4 h-4 fill-current"><path d="M3 18h6v-2H3v2zM3 6v2h18V6H3zm0 7h12v-2H3v2z"/></svg>
+                <span id="sort-active-text" class="hidden md:inline">SORT</span>
+                <div id="sort-clear-btn" class="hidden p-0.5 ml-1 rounded-full bg-text text-bg hover:scale-110" onclick="clearSort(event)"><svg class="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12" /></svg></div>
+            </button>
+            <div id="sort-dropdown" class="hidden absolute top-full left-0 mt-2 bg-bg border border-bordercolor shadow-xl rounded w-[140px] z-[100] overflow-hidden">
+                <div class="p-3 text-[11px] font-bold hover:bg-bordercolor cursor-pointer" onclick="applySort('newest')">NEWEST</div>
+                <div class="p-3 text-[11px] font-bold hover:bg-bordercolor cursor-pointer" onclick="applySort('oldest')">OLDEST</div>
+                <div class="p-3 text-[11px] font-bold hover:bg-bordercolor cursor-pointer" onclick="applySort('lowest')">LOWEST PRICE</div>
+                <div class="p-3 text-[11px] font-bold hover:bg-bordercolor cursor-pointer" onclick="applySort('highest')">HIGHEST PRICE</div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="search-container" class="relative hidden flex-1 mx-2 animate-searchSlideIn">
+        <input type="text" id="search-input" placeholder="SEARCH ALL..." autocomplete="off" class="w-full bg-transparent border-0 border-b-2 border-text text-text font-inherit text-[13px] font-bold outline-none py-1.5 uppercase placeholder:text-muted pr-8">
+        <button class="absolute right-0 top-1/2 -translate-y-1/2 text-muted hover:text-text cursor-pointer bg-transparent p-1" onclick="clearSearchInput()"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" /></svg></button>
+    </div>
+    
+    <div id="header-subcategories" class="flex gap-4 overflow-x-auto no-scrollbar flex-1 justify-center items-center text-[11px] text-muted font-bold whitespace-nowrap"></div>
+
+    <div class="flex items-center gap-2 shrink-0">
+        <button class="cursor-pointer p-1 text-text bg-transparent hover:opacity-70 transition-opacity" onclick="toggleSearch()" id="search-toggle-btn">
+            <svg id="icon-search" class="w-5 h-5 stroke-[2px]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" /></svg>
+            <svg id="icon-close" class="w-5 h-5 stroke-[2px] hidden text-text" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+        </button>
+        <button class="cursor-pointer inline-flex items-center gap-1.5 p-1 text-text bg-transparent hover:opacity-70 transition-opacity" onclick="openCart()">
+            <span id="cart-count" class="font-bold text-[13px]">0</span> 
+            <svg class="w-5 h-5 stroke-[2px]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007z" /></svg>
+        </button>
+    </div>
+</div>
+
+<!-- 4. PRODUCT GRID -->
+<main id="main-container" class="flex-grow pt-[15px] pb-[60px] min-h-[100vh]">
+    <div class="grid gap-[15px] px-[15px] transition-all duration-300 grid-cols-[repeat(var(--cols-m),1fr)] md:grid-cols-[repeat(var(--cols-d),1fr)]" id="grid">
+        <div class="text-center p-12 font-bold w-full col-span-full">SYNCING DATABASE...</div>
+    </div>
+</main>
+
+<!-- 5. STRUCTURED GRID FOOTER -->
+<footer id="main-footer" class="hidden w-full bg-text text-bg py-16 px-6 border-t-8 border-bordercolor mt-auto transition-colors duration-300">
+    <div class="max-w-[1000px] mx-auto grid grid-cols-1 md:grid-cols-3 gap-12 text-left">
+        <!-- About Block -->
+        <div class="flex flex-col gap-4">
+            <h2 id="footer-biz-name" class="text-[20px] font-bold tracking-widest uppercase">STORE</h2>
+            <p id="footer-biz-catch" class="text-[12px] italic opacity-70"></p>
+            <div class="w-10 h-1 bg-bg rounded opacity-50"></div>
+            <p id="footer-biz-about" class="text-[12px] leading-relaxed opacity-90 whitespace-pre-wrap"></p>
+        </div>
+        <!-- Locations Block -->
+        <div class="flex flex-col gap-4" id="footer-biz-locations-container">
+            <h3 class="font-bold text-[12px] tracking-widest opacity-60 uppercase">Our Locations</h3>
+            <div class="flex flex-col gap-3" id="footer-biz-locations"></div>
+        </div>
+        <!-- Contact & Social Block -->
+        <div class="flex flex-col gap-4">
+            <h3 class="font-bold text-[12px] tracking-widest opacity-60 uppercase">Connect</h3>
+            <div class="flex flex-wrap gap-4" id="footer-socials"></div>
+        </div>
+    </div>
+    <div class="max-w-[1000px] mx-auto mt-12 pt-6 border-t border-bg/20 text-center text-[10px] font-bold opacity-40 uppercase tracking-widest">
+        &copy; <span id="footer-year"></span> ALL RIGHTS RESERVED.
+    </div>
+</footer>
+
+<!-- PRODUCT DETAIL MODAL -->
+<div class="fixed inset-0 z-[100] bg-bg flex flex-col opacity-0 invisible pointer-events-none scale-95 transition-all duration-350 ease-[cubic-bezier(0.25,1,0.5,1)] [&.active]:opacity-100 [&.active]:visible [&.active]:pointer-events-auto [&.active]:scale-100" id="productModal">
+    <!-- Header -->
+    <div class="absolute top-0 left-0 w-full flex justify-between items-center px-5 py-2.5 z-[110] bg-bg border-b border-bordercolor shadow-sm">
+        <button class="cursor-pointer inline-flex p-1 text-text bg-transparent hover:opacity-70 transition-opacity" onclick="history.back()">
+            <svg class="w-6 h-6 stroke-[1.5px]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" /></svg>
+        </button>
+        <div class="flex items-center gap-5 text-text">
+            <button class="cursor-pointer font-bold text-[11px] tracking-wide hover:opacity-70 transition-opacity" onclick="toggleCurrency()"><span class="currency-label">SW / TZS</span></button>
+            <button class="cursor-pointer inline-flex items-center gap-1.5 p-1 hover:opacity-70 bg-transparent transition-opacity" onclick="openCart()">
+                <span id="modal-cart-count" class="font-bold text-[13px]">0</span>
+                <svg class="w-6 h-6 stroke-[1.5px]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007z" /></svg>
+            </button>
+        </div>
+    </div>
+    
+    <!-- DESKTOP SCROLL ARROWS -->
+    <div class="hidden md:flex flex-col absolute right-6 top-1/2 -translate-y-1/2 z-[120] gap-4">
+        <button class="w-12 h-12 bg-black/50 hover:bg-black/80 text-white rounded-full flex items-center justify-center cursor-pointer backdrop-blur transition-all hover:scale-110" onclick="scrollProductModal(-1)">
+            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg>
+        </button>
+        <button class="w-12 h-12 bg-black/50 hover:bg-black/80 text-white rounded-full flex items-center justify-center cursor-pointer backdrop-blur transition-all hover:scale-110" onclick="scrollProductModal(1)">
+            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+    </div>
+
+    <!-- Product Slider (TikTok/YouTube Shorts style snap) -->
+    <div class="h-[100dvh] w-[100vw] overflow-y-auto overflow-x-hidden no-scrollbar snap-y snap-mandatory" id="product-slider"></div>
+</div>
+
+<!-- BAG MODAL -->
+<div class="fixed inset-0 z-[100] bg-bg flex flex-col opacity-0 invisible pointer-events-none scale-95 transition-all duration-350 ease-[cubic-bezier(0.25,1,0.5,1)] [&.active]:opacity-100 [&.active]:visible [&.active]:pointer-events-auto [&.active]:scale-100" id="cartModal">
+    <div class="absolute top-0 left-0 w-full flex justify-between items-center px-5 py-2.5 z-[110] bg-bg border-b border-bordercolor shadow-sm">
+        <button class="cursor-pointer inline-flex p-1 text-text bg-transparent hover:opacity-70 transition-opacity" onclick="history.back()"><svg class="w-6 h-6 stroke-[1.5px]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" /></svg></button>
+        <span class="font-bold text-[14px] text-text tracking-wide">BAG</span>
+        <div class="w-9"></div>
+    </div>
+    <div class="flex-grow overflow-y-auto px-5 pt-[65px] pb-[150px] max-w-[600px] mx-auto w-full" id="cart-content"></div>
+    <div class="absolute bottom-0 left-0 w-full bg-bg p-5 border-t border-bordercolor transition-colors duration-300">
+        <div class="max-w-[600px] mx-auto">
+            <div class="flex justify-between font-bold mb-4 text-[15px]"><span>TOTAL</span><span id="cart-total-price">TZS 0</span></div>
+            <div class="flex gap-3 justify-center">
+                <button class="flex-1 p-3.5 font-bold rounded border-2 border-text bg-bg text-text transition-colors duration-200 text-[12px] cursor-pointer hover:opacity-70" onclick="window.open('tel:+' + WHATSAPP_NUMBER)">CALL US</button>
+                <button class="flex-[2] p-3.5 font-bold rounded border-2 border-text bg-text text-bg transition-colors duration-200 text-[12px] cursor-pointer hover:opacity-90" onclick="checkoutWhatsapp()">WHATSAPP BUY</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // --- DATABASES ---
+    const PRODUCT_SHEET_ID = '111Xjt7G0Xvm0DrCE0sVyPBh9WIoIx3BT2dyY8wlMT_U';
+    const BUSINESS_SHEET_ID = '1LTu-stx0nnaswPh8ZdecU6nLG04FlwfY0xrTy6YWUo4';
+    let WHATSAPP_NUMBER = "255682324756";
+    
+    // Globals
+    let businessInfo = { name: '', catchPhrase: '', about: '', socials: [], locations: [], phone: '' };
+    let banners = [];
+    let allProducts = []; let originalShuffledProducts = []; 
+    let categories = []; let cart = []; let activeModals = []; let currentSelections = {};
+    let currentPage = 1; let itemsPerPage = 18; let activeCat = 'ALL'; let activeSubcat = 'ALL';
+    let searchQuery = ''; let searchResults = null; let currentSort = null;
+    let currentCurrency = 'TZS'; let USD_CONVERSION_RATE = 2600;
+
+    document.getElementById('footer-year').innerText = new Date().getFullYear();
+
+    async function fetchExchangeRate() {
+        try {
+            let res = await fetch('https://open.er-api.com/v6/latest/USD');
+            let data = await res.json();
+            if(data && data.rates && data.rates.TZS) USD_CONVERSION_RATE = data.rates.TZS;
+        } catch(e) { console.warn("Failed to fetch live rates."); }
+    }
+
+    if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.classList.add('dark');
+    }
+
+    function toggleTheme() {
+        document.documentElement.classList.toggle('dark');
+        localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
+    }
+
+    function formatPrice(val) {
+        if (!val || val === 0) return 'FREE';
+        if (currentCurrency === 'USD') return '$' + (val / USD_CONVERSION_RATE).toFixed(2);
+        return 'TZS ' + val.toLocaleString('en-US');
+    }
+
+    function toggleCurrency() {
+        currentCurrency = currentCurrency === 'TZS' ? 'USD' : 'TZS';
+        document.querySelectorAll('.currency-label').forEach(el => el.innerText = currentCurrency === 'TZS' ? 'SW / TZS' : 'EN / USD');
+        renderGrid(); renderPageSlides(); updateCartUI();
+        if (activeModals.includes('productModal')) allProducts.forEach((p) => syncUI(p.id));
+    }
+
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            let j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        } return array;
+    }
+
+    function getProd(id) { return allProducts.find(p => p.id === id); }
+    function formatDriveUrl(url) {
+        if (!url) return '';
+        const idMatch = url.match(/\/d\/([a-zA-Z0-9_-]+)/) || url.match(/id=([a-zA-Z0-9_-]+)/);
+        return idMatch ? `https://drive.google.com/thumbnail?id=${idMatch[1]}&sz=w1000` : url;
+    }
+
+    function launchModal(modalId) {
+        document.getElementById(modalId).classList.add('active'); document.body.style.overflow = 'hidden';
+        history.pushState({ modal: modalId }, '', '#' + modalId); activeModals.push(modalId);
+    }
+
+    window.addEventListener('popstate', (e) => {
+        if (!e.state || !e.state.modal) {
+            while(activeModals.length > 0) document.getElementById(activeModals.pop()).classList.remove('active');
+            document.body.style.overflow = '';
+        } else {
+            while (activeModals.length > 0 && activeModals[activeModals.length - 1] !== e.state.modal) {
+                document.getElementById(activeModals.pop()).classList.remove('active');
+            }
+        }
+    });
+
+    async function fetchJSON(url) {
+        try {
+            let res = await fetch(url); let text = await res.text();
+            return JSON.parse(text.substring(47).slice(0, -2)).table.rows;
+        } catch(e) { return []; }
+    }
+
+    async function loadData() {
+        await fetchExchangeRate(); 
+        try {
+            const pBase = `https://docs.google.com/spreadsheets/d/${PRODUCT_SHEET_ID}/gviz/tq?tqx=out:json&sheet=`;
+            const bBase = `https://docs.google.com/spreadsheets/d/${BUSINESS_SHEET_ID}/gviz/tq?tqx=out:json&sheet=`;
+
+            const parsedData = await Promise.all([
+                fetchJSON(pBase + 'Products'), fetchJSON(pBase + 'Images'), fetchJSON(pBase + 'Specifications'), 
+                fetchJSON(pBase + 'Pricing and Variants'), fetchJSON(pBase + 'Bulk Discount'), fetchJSON(pBase + 'UI Choice'),
+                fetchJSON(bBase + 'bussiness'), fetchJSON(bBase + 'banner')
+            ]);
+
+            const [productsRows, imagesRows, specsRows, variantsRows, bulkRows, uiRows, bizRows, bannerRows] = parsedData;
+            const val = (row, idx) => { try { return (row.c && row.c[idx] && row.c[idx].v) !== null ? row.c[idx].v.toString().trim() : ''; } catch(e) { return ''; } };
+
+            if (bizRows && bizRows.length > 1) {
+                businessInfo.name = val(bizRows[1], 0);
+                businessInfo.catchPhrase = val(bizRows[1], 1);
+                businessInfo.about = val(bizRows[1], 2);
+                let phoneVal = val(bizRows[1], 5);
+                if(phoneVal) WHATSAPP_NUMBER = phoneVal.replace(/[^\d+]/g, '').replace(/^\+/, '');
+
+                for(let i = 1; i < bizRows.length; i++) {
+                    let s = val(bizRows[i], 3); if (s) businessInfo.socials.push(s);
+                    let l = val(bizRows[i], 4); if (l) businessInfo.locations.push(l);
+                }
+                populateBusinessUI();
+            }
+
+            if (bannerRows && bannerRows.length > 1) {
+                for(let i = 1; i < bannerRows.length; i++) {
+                    let img = val(bannerRows[i], 0); if(img) banners.push(formatDriveUrl(img));
+                }
+                renderBanners();
+            }
+
+            let productsMap = {};
+            productsRows.forEach(row => {
+                let id = val(row,0); if(!id || id.toLowerCase() === 'productid') return;
+                productsMap[id] = { id, name: val(row,1), category: val(row,2), subcategory: val(row,3), brand: val(row,4), date: val(row,5), description: val(row,6), imgs: [], variants: {}, specs: {}, bulkDiscounts: [], uiChoices: {} };
+            });
+
+            imagesRows.forEach(row => { let id = val(row,0); if(id && productsMap[id] && val(row,1)) productsMap[id].imgs.push(formatDriveUrl(val(row,1))); });
+            specsRows.forEach(row => { let id = val(row,0), n = val(row,1), a = val(row,2), c = parseFloat(val(row,3))||0; if(id && productsMap[id]) { if(!productsMap[id].specs[n]) productsMap[id].specs[n]=[]; productsMap[id].specs[n].push({ answer: a, extraCost: c }); } });
+            variantsRows.forEach(row => { let id = val(row,0), n = val(row,1), a = val(row,2), p = parseFloat(val(row,3))||0, sp = parseFloat(val(row,4))||0; if(id && productsMap[id]) { if(!productsMap[id].variants[n]) productsMap[id].variants[n]=[]; productsMap[id].variants[n].push({ answer: a, price: p, salePrice: sp }); } });
+            bulkRows.forEach(row => { let id = val(row,0), v = val(row,1), mq = parseInt(val(row,2))||0, bp = parseFloat(val(row,3))||0; if(id && productsMap[id]) productsMap[id].bulkDiscounts.push({ variant: v, minQty: mq, bulkPrice: bp }); });
+            uiRows.forEach(row => { let id = val(row,0), g = val(row,1), u = val(row,2); if(id && productsMap[id]) productsMap[id].uiChoices[g] = u.toLowerCase(); });
+
+            allProducts = Object.values(productsMap).filter(p => p.imgs.length > 0);
+            allProducts.forEach(p => {
+                let fg = Object.keys(p.variants)[0];
+                p.numPrice = (fg && p.variants[fg][0]) ? p.variants[fg][0].price : 0;
+                p.numDiscount = (fg && p.variants[fg][0]) ? p.variants[fg][0].salePrice : 0;
+                p.activePriceNum = (p.numDiscount > 0 && p.numDiscount < p.numPrice) ? p.numDiscount : p.numPrice;
+                
+                currentSelections[p.id] = { variants: {}, specs: {}, qty: 1 };
+                Object.keys(p.variants).forEach(g => currentSelections[p.id].variants[g] = p.variants[g][0].answer);
+                Object.keys(p.specs).forEach(g => currentSelections[p.id].specs[g] = []);
+            });
+
+            allProducts = shuffleArray(allProducts); originalShuffledProducts = [...allProducts];
+            categories = ['ALL', ...new Set(allProducts.map(p => p.category).filter(Boolean))];
+
+            renderHeaderFilters(); renderPageSlides(); allProducts.forEach(p => syncUI(p.id)); 
+            document.getElementById('main-footer').classList.remove('hidden');
+        } catch (err) {
+            document.getElementById('grid').innerHTML = `<div class="text-center p-12 font-bold w-full col-span-full text-red-500">ERROR LOADING DATA</div>`;
+        }
+    }
+
+    function getLocationName(url) {
+        try {
+            let host = new URL(url).hostname.replace('www.', '').toUpperCase();
+            if(host.includes('GOOGLE')) return "GOOGLE MAPS";
+            if(host.includes('APPLE')) return "APPLE MAPS";
+            return host;
+        } catch(e) { return "STORE LOCATION"; }
+    }
+
+    function populateBusinessUI() {
+        if(businessInfo.name) {
+            document.title = businessInfo.name;
+            document.getElementById('hdr-biz-name').innerText = businessInfo.name;
+            document.getElementById('footer-biz-name').innerText = businessInfo.name;
+        }
+        if(businessInfo.catchPhrase) document.getElementById('footer-biz-catch').innerText = businessInfo.catchPhrase;
+        if(businessInfo.about) document.getElementById('footer-biz-about').innerText = businessInfo.about;
+
+        let locHtml = businessInfo.locations.map((l) => `<a href="${l}" target="_blank" class="flex items-center gap-3 text-[11px] font-bold py-3 px-4 rounded border border-bg/30 hover:bg-bg/20 transition-colors max-w-[300px]"><svg class="w-4 h-4 text-bg shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg> ${getLocationName(l)}</a>`).join('');
+        if(businessInfo.locations.length === 0) document.getElementById('footer-biz-locations-container').style.display = 'none';
+        else document.getElementById('footer-biz-locations').innerHTML = locHtml;
+
+        let socialHtml = businessInfo.socials.map(s => {
+            let str = s.toLowerCase(); let icon = `<svg class="w-6 h-6 stroke-[1.5px]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" /></svg>`;
+            if(str.includes('facebook')||str.includes('fb.')) icon = `<svg class="w-6 h-6 fill-current" viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg>`;
+            else if(str.includes('instagram')||str.includes('ig.')) icon = `<svg class="w-6 h-6 stroke-current" fill="none" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>`;
+            else if(str.includes('twitter')||str.includes('x.com')) icon = `<svg class="w-6 h-6 fill-current" viewBox="0 0 24 24"><path d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z"/></svg>`;
+            else if(str.includes('tiktok')) icon = `<svg class="w-6 h-6 fill-current" viewBox="0 0 24 24"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-5.2 1.74 2.89 2.89 0 012.31-4.64 2.93 2.93 0 01.88.13V9.4a6.84 6.84 0 00-1-.05A6.28 6.28 0 005.4 20.3a6.32 6.32 0 006.27-6.28V11.5a8.21 8.21 0 005 1.68v-3.41a4.91 4.91 0 01-2.08-.08z"/></svg>`;
+            else if(str.includes('youtube')||str.includes('youtu.')) icon = `<svg class="w-6 h-6 fill-current" viewBox="0 0 24 24"><path d="M22.54 6.42a2.78 2.78 0 00-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 00-1.94 2A29 29 0 001 11.75a29 29 0 00.46 5.33 2.78 2.78 0 001.94 2c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 001.94-2 29 29 0 00.46-5.33 29 29 0 00-.46-5.33z"/><polygon fill="var(--bg)" points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"/></svg>`;
+            else if(str.includes('wa.me')||str.includes('whatsapp')) icon = `<svg class="w-6 h-6 fill-current" viewBox="0 0 24 24"><path d="M17.47 14.38c-.3-.15-1.76-.87-2.03-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.94 1.16-.17.2-.35.22-.64.08-.3-.15-1.26-.46-2.39-1.48-.88-.79-1.48-1.76-1.65-2.06-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.03-.52-.07-.15-.67-1.61-.92-2.2-.24-.58-.49-.5-.67-.51h-.57c-.2 0-.52.07-.79.37-.27.3-1.04 1.02-1.04 2.48 0 1.46 1.07 2.88 1.21 3.07.15.2 2.1 3.2 5.08 4.49.71.3 1.26.49 1.69.62.71.23 1.36.2 1.87.12.57-.08 1.76-.72 2.01-1.41.25-.69.25-1.29.17-1.41-.07-.12-.27-.2-.57-.35m-5.42 7.4h0a9.87 9.87 0 01-5.03-1.38l-.36-.21-3.74.98 1-3.65-.24-.37A9.86 9.86 0 012.17 12c0-5.45 4.44-9.88 9.89-9.88 2.64 0 5.12 1.03 6.99 2.9a9.82 9.82 0 012.89 6.99c0 5.45-4.44 9.88-9.88 9.88m8.41-18.3A11.82 11.82 0 0012.05 0C5.5 0 .16 5.34.16 11.89c0 2.1.55 4.14 1.59 5.95L.06 24l6.3-1.65a11.88 11.88 0 005.69 1.45h0c6.55 0 11.89-5.34 11.89-11.89a11.82 11.82 0 00-3.48-8.41z"/></svg>`;
+            return `<a href="${s}" target="_blank" class="opacity-70 hover:opacity-100 transition-opacity flex items-center justify-center p-2 border border-bg/20 rounded-full">${icon}</a>`;
+        }).join('');
+        document.getElementById('footer-socials').innerHTML = socialHtml;
+    }
+
+    // --- SMOOTH FADE & SLIDE CAROUSEL LOGIC ---
+    function changeSlide(trackId, dir) {
+        let track = document.getElementById(trackId);
+        if(!track) return;
+        let slides = track.querySelectorAll('.carousel-slide');
+        if(slides.length <= 1) return;
+
+        let activeIdx = parseInt(track.dataset.active || '0');
+        let nextIdx = (activeIdx + dir + slides.length) % slides.length;
+
+        // Current leaves
+        slides[activeIdx].classList.remove('active-slide');
+        // Next enters
+        slides[nextIdx].classList.add('active-slide');
+
+        track.dataset.active = nextIdx;
+        updateCarouselUI(trackId, nextIdx);
+    }
+
+    function updateCarouselUI(trackId, activeIdx) {
+        let track = document.getElementById(trackId);
+        let dots = document.getElementById(trackId.replace('track-', 'dots-'));
+        if(dots) {
+            Array.from(dots.children).forEach((dot, i) => {
+                if(i == activeIdx) { dot.classList.add('bg-white', 'scale-125'); dot.classList.remove('bg-white/50'); }
+                else { dot.classList.add('bg-white/50'); dot.classList.remove('bg-white', 'scale-125'); }
+            });
+        }
+        let counter = document.getElementById(trackId.replace('track-', 'counter-'));
+        if(counter) { counter.innerText = (parseInt(activeIdx) + 1) + ' / ' + track.querySelectorAll('.carousel-slide').length; }
+    }
+
+    let startX = 0; let startY = 0;
+    function ts(e) { startX = e.touches[0].clientX; startY = e.touches[0].clientY; }
+    function te(e, id) {
+        let ex = e.changedTouches[0].clientX; let ey = e.changedTouches[0].clientY;
+        let diffX = Math.abs(startX - ex); let diffY = Math.abs(startY - ey);
+        // Allow horizontal swipe to trigger the vertical fade animation
+        if(diffX > 40 && diffX > diffY) {
+            if(startX - ex > 40) { changeSlide(id, 1); resetBannerInterval(); }
+            if(ex - startX > 40) { changeSlide(id, -1); resetBannerInterval(); }
+        }
+    }
+
+    let bannerInterval;
+    function resetBannerInterval() {
+        clearInterval(bannerInterval);
+        bannerInterval = setInterval(() => { changeSlide('track-hero', 1); }, 6000);
+    }
+
+    function renderBanners() {
+        const container = document.getElementById('hero-banner');
+        if(banners.length === 0) return;
+        container.classList.remove('hidden');
+        
+        let html = `<div class="relative w-full h-full overflow-hidden" id="track-hero" data-active="0" ontouchstart="ts(event)" ontouchend="te(event, 'track-hero')">`;
+        banners.forEach((b, i) => { 
+            let activeClass = i === 0 ? 'active-slide' : '';
+            html += `<div class="carousel-slide absolute inset-0 transition-all duration-700 ease-[cubic-bezier(0.25,1,0.5,1)] opacity-0 translate-y-8 z-0 [&.active-slide]:opacity-100 [&.active-slide]:translate-y-0 [&.active-slide]:z-10 ${activeClass}" data-index="${i}"><img src="${b}" class="w-full h-full object-cover object-center" loading="${i===0?'eager':'lazy'}"></div>`; 
+        });
+        html += `</div>`;
+        
+        if(banners.length > 1) {
+            html += `<button class="absolute top-1/2 -translate-y-1/2 left-3 w-8 h-8 bg-black/50 text-white rounded-full flex items-center justify-center z-20 hover:bg-black/80 cursor-pointer" onclick="changeSlide('track-hero', -1); resetBannerInterval();"><svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg></button>
+                     <button class="absolute top-1/2 -translate-y-1/2 right-3 w-8 h-8 bg-black/50 text-white rounded-full flex items-center justify-center z-20 hover:bg-black/80 cursor-pointer" onclick="changeSlide('track-hero', 1); resetBannerInterval();"><svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg></button>
+                     <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2.5 z-20 bg-black/30 px-3 py-1.5 rounded-full backdrop-blur-sm" id="dots-hero">`;
+            banners.forEach((_, i) => { html += `<div class="w-2 h-2 rounded-full transition-all duration-300 ${i===0?'bg-white scale-125':'bg-white/50'}"></div>`; });
+            html += `</div>`;
+            resetBannerInterval();
+        }
+        container.innerHTML = html;
+    }
+
+    // --- SORT & SEARCH ---
+    function toggleSortMenu() { document.getElementById('sort-dropdown').classList.toggle('hidden'); }
+    document.addEventListener('click', (e) => { if(!e.target.closest('#sort-toggle-btn') && !e.target.closest('#sort-dropdown')) document.getElementById('sort-dropdown').classList.add('hidden'); });
+
+    function applySort(type) {
+        if (currentSort === type) { clearSort(); return; }
+        currentSort = type;
+        const texts = { 'newest': 'NEWEST', 'oldest': 'OLDEST', 'lowest': 'LOWEST', 'highest': 'HIGHEST' };
+        document.getElementById('sort-active-text').innerText = texts[type] || 'SORT';
+        document.getElementById('sort-active-text').classList.remove('hidden', 'md:inline');
+        document.getElementById('sort-clear-btn').classList.remove('hidden');
+        document.getElementById('sort-dropdown').classList.add('hidden');
+
+        if (type === 'lowest') allProducts.sort((a, b) => a.activePriceNum - b.activePriceNum);
+        else if (type === 'highest') allProducts.sort((a, b) => b.activePriceNum - a.activePriceNum);
+        else if (type === 'newest' || type === 'oldest') {
+            allProducts.sort((a, b) => { let dA = new Date(a.date||0).getTime()||0; let dB = new Date(b.date||0).getTime()||0; return type === 'newest' ? dB - dA : dA - dB; });
+        }
+        currentPage = 1; renderHeaderFilters(); renderPageSlides();
+    }
+
+    function clearSort(e) {
+        if(e) e.stopPropagation(); currentSort = null;
+        document.getElementById('sort-active-text').innerText = "SORT";
+        document.getElementById('sort-active-text').classList.add('hidden', 'md:inline');
+        document.getElementById('sort-clear-btn').classList.add('hidden');
+        document.getElementById('sort-dropdown').classList.add('hidden');
+        allProducts = [...originalShuffledProducts]; currentPage = 1; renderHeaderFilters(); renderPageSlides();
+    }
+
+    let isSearchOpen = false;
+    function toggleSearch() {
+        isSearchOpen = !isSearchOpen;
+        const sCont = document.getElementById('search-container'), sCats = document.getElementById('header-subcategories');
+        const iSearch = document.getElementById('icon-search'), iClose = document.getElementById('icon-close');
+        if (isSearchOpen) { 
+            sCont.classList.replace('hidden', 'block'); sCats.classList.add('hidden'); iSearch.classList.add('hidden'); iClose.classList.remove('hidden'); 
+            document.getElementById('search-input').focus();
+            
+            const stickyRowOffset = document.getElementById('sticky-controls').offsetTop;
+            window.scrollTo({ top: stickyRowOffset, behavior: 'smooth' });
+        } else { 
+            sCont.classList.replace('block', 'hidden'); sCats.classList.remove('hidden'); iSearch.classList.remove('hidden'); iClose.classList.add('hidden'); 
+            clearSearchInput(); 
+        }
+    }
+    
+    function clearSearchInput() { document.getElementById('search-input').value = ''; handleSearch(''); }
+    document.getElementById('search-input').addEventListener('input', (e) => handleSearch(e.target.value));
+
+    function handleSearch(val) {
+        searchQuery = val.trim().toLowerCase();
+        if (!searchQuery) { searchResults = null; currentPage = 1; renderGrid(); return; }
+        
+        activeCat = 'ALL'; activeSubcat = 'ALL'; renderHeaderFilters();
+
+        const words = searchQuery.split(/\s+/).filter(Boolean);
+        let scored = allProducts.map(p => {
+            const txt = [p.name, p.category, p.subcategory, p.brand, p.description].join(' ').toLowerCase();
+            let c = 0; words.forEach(w => { if (txt.includes(w)) c++; }); return { p, c };
+        }).filter(i => i.c > 0).sort((a, b) => b.c - a.c);
+        searchResults = scored.map(i => { let pr = { ...i.p }; pr._isClosestMatch = (i.c < words.length); return pr; });
+        currentPage = 1; renderGrid();
+    }
+
+    function renderHeaderFilters() {
+        document.getElementById('header-categories').innerHTML = categories.map(c => `<span class="header-cat cursor-pointer transition-colors duration-200 py-1 ${c === activeCat ? 'active' : ''}" onclick="setCategory('${c}')">${c}</span>`).join('');
+        renderSubcategories(); renderGrid();
+    }
+    function renderSubcategories() {
+        const cont = document.getElementById('header-subcategories');
+        let src = activeCat === 'ALL' ? allProducts : allProducts.filter(p => p.category === activeCat);
+        let subcats = [...new Set(src.map(p => p.subcategory).filter(Boolean))];
+        if (!subcats.includes(activeSubcat)) activeSubcat = 'ALL'; 
+        if(subcats.length === 0) cont.innerHTML = '';
+        else cont.innerHTML = `<span class="subcat cursor-pointer transition-colors duration-200 py-1 ${activeSubcat === 'ALL' ? 'active' : ''}" onclick="setSubcategory('ALL')">ALL</span>` + subcats.map(s => `<span class="subcat cursor-pointer transition-colors duration-200 py-1 ${s === activeSubcat ? 'active' : ''}" onclick="setSubcategory('${s}')">${s}</span>`).join('');
+    }
+    function setCategory(cat) { activeCat = cat; activeSubcat = 'ALL'; currentPage = 1; renderHeaderFilters(); }
+    function setSubcategory(subcat) { activeSubcat = subcat; currentPage = 1; renderSubcategories(); renderGrid(); }
+    function changePage(page) { currentPage = page; renderGrid(); window.scrollTo({ top: document.getElementById('sticky-controls').offsetTop, behavior: 'smooth' }); }
+
+    function renderGrid() {
+        let filtered = searchResults !== null ? searchResults : allProducts;
+        if (searchResults === null) {
+            if (activeCat !== 'ALL') filtered = filtered.filter(p => p.category === activeCat);
+            if (activeSubcat !== 'ALL') filtered = filtered.filter(p => p.subcategory === activeSubcat);
+        }
+        const grid = document.getElementById('grid');
+        if(filtered.length === 0) { grid.innerHTML = `<div class="text-center p-12 font-bold w-full col-span-full">NO PRODUCTS FOUND</div>`; return; }
+
+        const totalPages = Math.ceil(filtered.length / itemsPerPage); if (currentPage > totalPages) currentPage = totalPages;
+        const startIndex = (currentPage - 1) * itemsPerPage; const paginated = filtered.slice(startIndex, startIndex + itemsPerPage);
+
+        let html = paginated.map(prod => {
+            let match = prod._isClosestMatch ? `<div class="text-[9px] font-bold bg-muted text-bg inline-block px-1.5 py-0.5 rounded-[2px] mx-auto mb-1 tracking-wide">CLOSE MATCH</div>` : '';
+            let price = prod.activePriceNum === 0 ? '' : `<div class="text-[11px] font-bold text-muted mt-0.5">${formatPrice(prod.activePriceNum)}</div>`;
+            return `
+                <div class="cursor-pointer text-center flex flex-col group" onclick="openProduct('${prod.id}')">
+                    <div class="aspect-square w-full overflow-hidden mb-2 relative bg-bordercolor/30 rounded">
+                        <img loading="lazy" src="${prod.imgs[0]}" class="object-contain w-full h-full object-center transition-transform duration-500 group-hover:scale-105">
+                    </div>
+                    ${match}
+                    <div class="font-bold text-[12px] mt-0.5 uppercase">${prod.name.toLowerCase()}</div>
+                    ${price}
+                </div>
+            `;
+        }).join('');
+
+        if (totalPages > 1) {
+            let pCtrl = `<div class="col-span-full flex justify-center items-center gap-2 pt-7 pb-2.5 flex-wrap"><button class="page-btn p-2 border border-bordercolor rounded text-[12px] font-bold disabled:opacity-30 cursor-pointer" ${currentPage === 1 ? 'disabled' : ''} onclick="changePage(${currentPage - 1})">PREV</button>`;
+            let last = 0;
+            for(let i = 1; i <= totalPages; i++) {
+                if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
+                    if (last && i - last > 1) pCtrl += `<span>...</span>`;
+                    pCtrl += `<button class="page-btn p-2 border border-bordercolor rounded text-[12px] font-bold cursor-pointer ${i === currentPage ? 'active' : ''}" onclick="changePage(${i})">${i}</button>`; last = i;
+                }
+            }
+            pCtrl += `<button class="page-btn p-2 border border-bordercolor rounded text-[12px] font-bold disabled:opacity-30 cursor-pointer" ${currentPage === totalPages ? 'disabled' : ''} onclick="changePage(${currentPage + 1})">NEXT</button></div>`; html += pCtrl;
+        }
+        grid.innerHTML = html;
+    }
+
+    // --- DESKTOP SCROLL NAV ---
+    function scrollProductModal(dir) {
+        const slider = document.getElementById('product-slider');
+        const h = window.innerHeight;
+        slider.scrollBy({ top: dir * h, behavior: 'smooth' });
+    }
+
+    // --- PRODUCT MODAL ---
+    function renderPageSlides() {
+        const slider = document.getElementById('product-slider');
+        
+        slider.innerHTML = allProducts.map((prod) => {
+            const id = prod.id;
+            let slidesHtml = prod.imgs.map((u, i) => {
+                let activeClass = i === 0 ? 'active-slide' : '';
+                return `<div class="carousel-slide absolute inset-0 transition-all duration-500 ease-[cubic-bezier(0.25,1,0.5,1)] opacity-0 translate-y-8 z-0 [&.active-slide]:opacity-100 [&.active-slide]:translate-y-0 [&.active-slide]:z-10 ${activeClass} flex justify-center items-center p-2.5" data-index="${i}"><img loading="lazy" src="${u}" class="w-full h-full object-contain object-center cursor-zoom-in"></div>`;
+            }).join('');
+            
+            let counterHtml = prod.imgs.length > 1 ? `<div class="img-counter absolute top-[15px] left-[15px] bg-black/60 text-white px-2 py-1 rounded-[4px] text-[11px] font-bold tracking-widest z-20" id="counter-${id}">1 / ${prod.imgs.length}</div>` : '';
+
+            // Grid based variations to save vertical space
+            let variationsHtml = '<div class="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full text-left mb-3">';
+            Object.keys(prod.variants).forEach(g => {
+                let ui = prod.uiChoices[g] || 'dropdown';
+                variationsHtml += `<div class="flex flex-col w-full"><label class="block text-[10px] font-bold text-muted mb-1.5 uppercase">${g}</label>`;
+                if (ui.includes('button') || ui.includes('radio') || ui.includes('checkbox')) {
+                    variationsHtml += `<div class="flex flex-wrap gap-1.5">`;
+                    prod.variants[g].forEach(v => { variationsHtml += `<button class="pill-btn flex-1 min-w-[70px] p-1.5 border border-bordercolor rounded bg-transparent text-text text-[11px] font-bold cursor-pointer transition-colors" id="var-${id}-${g}-${v.answer}" onclick="selectVariant('${id}', '${g}', '${v.answer}')">${v.answer}</button>`; });
+                    variationsHtml += `</div>`;
+                } else {
+                    variationsHtml += `<select class="w-full p-2 font-mono text-[11px] outline-none border border-bordercolor rounded bg-bg text-text uppercase cursor-pointer" onchange="selectVariant('${id}', '${g}', this.value)">`;
+                    prod.variants[g].forEach(v => { variationsHtml += `<option value="${v.answer}">${v.answer}</option>`; });
+                    variationsHtml += `</select>`;
+                }
+                variationsHtml += `</div>`;
+            });
+
+            Object.keys(prod.specs).forEach(g => {
+                let ui = prod.uiChoices[g] || 'checkbox'; 
+                variationsHtml += `<div class="flex flex-col w-full"><label class="block text-[10px] font-bold text-muted mb-1.5 uppercase">${g} (Extra)</label>`;
+                if(ui.includes('dropdown')) {
+                     variationsHtml += `<select class="w-full p-2 font-mono text-[11px] outline-none border border-bordercolor rounded bg-bg text-text uppercase cursor-pointer" onchange="toggleSpecDrop('${id}', '${g}', this.value)"><option value="">None</option>`;
+                     prod.specs[g].forEach(s => { let c = s.extraCost > 0 ? `(+${formatPrice(s.extraCost)})` : ''; variationsHtml += `<option value="${s.answer}">${s.answer} ${c}</option>`; });
+                     variationsHtml += `</select>`;
+                } else {
+                    variationsHtml += `<div class="flex flex-wrap gap-1.5">`;
+                    prod.specs[g].forEach(s => { let c = s.extraCost > 0 ? `+${formatPrice(s.extraCost)}` : ''; variationsHtml += `<button class="pill-btn flex-1 min-w-[70px] p-1.5 border border-bordercolor rounded bg-transparent text-text text-[11px] font-bold cursor-pointer transition-colors" id="spec-${id}-${g}-${s.answer}" onclick="toggleSpec('${id}', '${g}', '${s.answer}')">${s.answer} ${c}</button>`; });
+                    variationsHtml += `</div>`;
+                }
+                variationsHtml += `</div>`;
+            });
+            variationsHtml += '</div>';
+
+            let bulkHtml = prod.bulkDiscounts.length > 0 ? `<div class="w-full text-[10px] text-warning bg-warning/10 p-2 rounded text-center font-bold border border-warning/20 mb-3"><b>Bulk Offers:</b> ` + prod.bulkDiscounts.map(b => `${b.minQty}+ ${b.variant} @ ${formatPrice(b.bulkPrice)}`).join(' | ') + `</div>` : '';
+
+            let desc = prod.description ? `<div class="text-[13px] text-desc leading-relaxed normal-case w-full whitespace-pre-wrap">${prod.description}</div>` : '';
+            let date = prod.date ? `<div class="text-[11px] font-bold text-muted mt-2 w-full">ADDED: ${prod.date}</div>` : '';
+            let brand = prod.brand ? `<div class="text-[11px] font-bold text-muted mt-1 w-full">BRAND: ${prod.brand}</div>` : '';
+
+            let navBtnsHtml = prod.imgs.length > 1 ? `
+                <button class="carousel-btn absolute top-1/2 -translate-y-1/2 w-9 h-9 bg-black/50 text-white rounded-full z-20 left-[15px] flex items-center justify-center hover:bg-black/80 cursor-pointer" onclick="changeSlide('track-${id}', -1)"><svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg></button>
+                <button class="carousel-btn absolute top-1/2 -translate-y-1/2 w-9 h-9 bg-black/50 text-white rounded-full z-20 right-[15px] flex items-center justify-center hover:bg-black/80 cursor-pointer" onclick="changeSlide('track-${id}', 1)"><svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg></button>
+            ` : '';
+
+            return `
+                <div class="w-[100vw] flex flex-col pt-[55px] md:flex-row md:pt-[60px] md:pb-0 shrink-0 snap-start snap-always" id="slide_${id}" style="height: 100dvh;">
+                    <div class="h-[45vh] w-full relative overflow-hidden flex bg-bg shrink-0 md:h-[calc(100dvh-60px)] md:flex-1 border-b md:border-b-0 border-bordercolor" id="media-${id}">
+                        ${counterHtml}
+                        <button class="absolute top-[15px] right-[15px] w-9 h-9 bg-black/60 text-white rounded-full z-30 flex items-center justify-center hover:bg-black/80 cursor-pointer" id="fs-btn-${id}" onclick="toggleFullscreen('${id}')">
+                            <svg class="fs-expand w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
+                            <svg class="fs-close w-5 h-5 hidden" fill="currentColor" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                        </button>
+                        ${navBtnsHtml}
+                        <div class="relative w-full h-full overflow-hidden" id="track-${id}" data-active="0" ontouchstart="ts(event)" ontouchend="te(event, 'track-${id}')">${slidesHtml}</div>
+                    </div>
+
+                    <div class="flex-1 overflow-y-auto flex flex-col bg-bg z-10 md:w-[450px] md:h-[calc(100dvh-60px)] shrink-0 relative border-l border-bordercolor">
+                        <div class="sticky top-0 left-0 w-full flex bg-bg z-20 border-b border-bordercolor shadow-sm">
+                            <span id="tab-buy-${id}" class="tab-btn active w-1/2 text-center py-3.5 cursor-pointer text-[13px] font-bold" onclick="switchTab('${id}', 'buy')">BUY</span>
+                            <span id="tab-det-${id}" class="tab-btn w-1/2 text-center py-3.5 cursor-pointer text-[13px] font-bold" onclick="switchTab('${id}', 'det')">DETAILS</span>
+                        </div>
+                        <div class="w-full flex flex-col p-5 md:p-6">
+                            <h2 class="text-[20px] tracking-tight font-bold capitalize mb-1">${prod.name.toLowerCase()}</h2>
+                            <div id="price-display-${id}" class="font-bold text-[18px] mb-4"></div>
+                            <div id="content-buy-${id}" class="w-full flex flex-col">
+                                ${variationsHtml}
+                                ${bulkHtml}
+                                <div class="flex flex-col sm:flex-row items-stretch sm:items-center w-full border-t border-bordercolor pt-3 mt-1 gap-3">
+                                    <div class="flex items-center justify-between sm:justify-start w-full sm:w-auto gap-3 shrink-0">
+                                        <div class="flex items-center gap-1.5">
+                                            <button class="w-9 h-9 rounded border border-bordercolor text-[18px] cursor-pointer hover:bg-bordercolor bg-transparent transition-colors flex items-center justify-center" onclick="adjustProductQty('${id}', -1)">-</button>
+                                            <span id="prod-qty-${id}" class="font-bold text-[14px] w-6 text-center">1</span>
+                                            <button class="w-9 h-9 rounded border border-bordercolor text-[18px] cursor-pointer hover:bg-bordercolor bg-transparent transition-colors flex items-center justify-center" onclick="adjustProductQty('${id}', 1)">+</button>
+                                        </div>
+                                    </div>
+                                    <div class="flex gap-2 flex-1 w-full">
+                                        <button id="btn-${id}" class="flex-1 py-3 font-bold rounded border-2 border-text bg-text text-bg text-[11px] cursor-pointer [&.added]:bg-bg [&.added]:text-text transition-colors" onclick="toggleBag('${id}')">ADD</button>
+                                        <button class="flex-1 py-3 font-bold rounded border-2 border-text bg-bg text-text text-[11px] cursor-pointer hover:bg-bordercolor transition-colors" onclick="checkoutWhatsappSingle('${id}')">BUY NOW</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="content-det-${id}" class="w-full hidden flex-col">
+                                ${desc} <div class="mt-4 pt-4 border-t border-bordercolor flex flex-col gap-1 w-full">${brand}${date}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function selectVariant(id, g, v) { currentSelections[id].variants[g] = v; syncUI(id); }
+    function toggleSpec(id, g, v) { let arr = currentSelections[id].specs[g]; let i = arr.indexOf(v); if(i > -1) arr.splice(i, 1); else arr.push(v); syncUI(id); }
+    function toggleSpecDrop(id, g, v) { currentSelections[id].specs[g] = v === "" ? [] : [v]; syncUI(id); }
+    function adjustProductQty(id, amt) { if (currentSelections[id].qty + amt >= 1) { currentSelections[id].qty += amt; syncUI(id); } }
+
+    function syncUI(id) {
+        let p = getProd(id); let sel = currentSelections[id];
+        Object.keys(p.variants).forEach(g => {
+            let a = sel.variants[g]; let ui = p.uiChoices[g] || 'dropdown';
+            if (ui.includes('button') || ui.includes('radio') || ui.includes('checkbox')) { p.variants[g].forEach(v => { let b = document.getElementById(`var-${id}-${g}-${v.answer}`); if(b) v.answer===a ? b.classList.add('active') : b.classList.remove('active'); }); } 
+            else { let selEl = document.querySelector(`#content-buy-${id} select[onchange="selectVariant('${id}', '${g}', this.value)"]`); if(selEl) selEl.value = a; }
+        });
+        Object.keys(p.specs).forEach(g => {
+            let ui = p.uiChoices[g] || 'checkbox'; 
+            if(ui.includes('dropdown')){ let selEl = document.querySelector(`#content-buy-${id} select[onchange="toggleSpecDrop('${id}', '${g}', this.value)"]`); if(selEl) selEl.value = sel.specs[g][0] || ""; } 
+            else { p.specs[g].forEach(s => { let b = document.getElementById(`spec-${id}-${g}-${s.answer}`); if(b) sel.specs[g].includes(s.answer) ? b.classList.add('active') : b.classList.remove('active'); }); }
+        });
+        let q = document.getElementById(`prod-qty-${id}`); if(q) q.innerText = sel.qty;
+        updateProductPrice(id);
+    }
+
+    function updateProductPrice(id) {
+        let p = getProd(id); let sel = currentSelections[id]; let qty = sel.qty || 1;
+        let nb = 0; let nd = 0; let ss = 0;
+        Object.keys(p.variants).forEach(g => { let v = p.variants[g].find(x => x.answer === sel.variants[g]); if(v) { nb += (v.price||0); nd += (v.salePrice>0?v.salePrice:(v.price||0)); } });
+        Object.keys(sel.specs).forEach(g => { sel.specs[g].forEach(ans => { let s = p.specs[g].find(x => x.answer === ans); if(s) ss += (s.extraCost||0); }); });
+
+        let ad = nd; let isBulk = false; let bp = getBulkPrice(p, sel.variants, qty);
+        if (bp !== null) { ad = bp; isBulk = true; }
+
+        let tb = (nb + ss) * qty; let td = (ad + ss) * qty;
+        let pd = document.getElementById(`price-display-${id}`);
+        if(pd) {
+            if(td < tb && td > 0) pd.innerHTML = `<span class="text-text">${formatPrice(td)}</span> <span class="line-through text-red-500 text-[14px] mx-2">${formatPrice(tb)}</span> <span class="bg-success text-white text-[10px] font-bold px-1.5 py-0.5 rounded-[3px] align-middle">${isBulk?"BULK":`-${Math.round(((tb-td)/tb)*100)}%`}</span>`;
+            else pd.innerHTML = tb === 0 ? 'FREE' : formatPrice(tb);
+        }
+        updateBtnState(id);
+    }
+
+    function switchTab(id, tab) {
+        ['buy', 'det'].forEach(t => { document.getElementById(`tab-${t}-${id}`).classList.remove('active'); const c = document.getElementById(`content-${t}-${id}`); c.classList.remove('flex'); c.classList.add('hidden'); });
+        document.getElementById(`tab-${tab}-${id}`).classList.add('active'); const ac = document.getElementById(`content-${tab}-${id}`); ac.classList.remove('hidden'); ac.classList.add('flex');
+    }
+
+    let currentGridM = 3; let currentGridD = 6; 
+    function cycleGridLogic() { if (window.innerWidth < 768) { currentGridM = currentGridM === 3 ? 2 : (currentGridM === 2 ? 1 : 3); document.documentElement.style.setProperty('--cols-m', currentGridM); } else { currentGridD = currentGridD === 6 ? 3 : 6; document.documentElement.style.setProperty('--cols-d', currentGridD); } updateGridBadge(); }
+    function cycleGrid() { document.startViewTransition ? document.startViewTransition(() => cycleGridLogic()) : cycleGridLogic(); }
+    function updateGridBadge() { const isM = window.innerWidth < 768; const n = isM ? currentGridM : currentGridD; const b = document.getElementById('grid-number-badge'); if(b) b.innerText = n; document.documentElement.style.setProperty(isM?'--cols-m':'--cols-d', n); }
+    window.addEventListener('resize', updateGridBadge); document.addEventListener('DOMContentLoaded', updateGridBadge);
+
+    function openProduct(id) { launchModal('productModal'); const ts = document.getElementById(`slide_${id}`); if(ts) ts.scrollIntoView({ behavior: 'instant', block: 'start' }); syncUI(id); }
+    function openCart() { launchModal('cartModal'); }
+    function goToProduct(id) { if(activeModals[activeModals.length - 1] === 'cartModal') history.back(); setTimeout(() => { if(!activeModals.includes('productModal')) openProduct(id); else { document.getElementById(`slide_${id}`).scrollIntoView({ behavior: 'instant', block: 'start' }); syncUI(id); } }, 50); }
+
+    function getBulkPrice(p, vs, q) { let ap = p.bulkDiscounts.filter(bd => Object.values(vs).includes(bd.variant) && q >= bd.minQty); if (ap.length > 0) { ap.sort((a,b) => b.minQty - a.minQty); return ap[0].bulkPrice; } return null; }
+    function calcCartPrice(item) { let p = item.product; let sel = item.selections; let ss = 0; Object.keys(sel.specs).forEach(g => { sel.specs[g].forEach(ans => { let s = p.specs[g].find(x => x.answer === ans); if(s) ss += (s.extraCost||0); }); }); let bulk = getBulkPrice(p, sel.variants, item.qty); if(bulk !== null) return bulk + ss; let ub = 0; Object.keys(sel.variants).forEach(g => { let v = p.variants[g].find(x => x.answer === sel.variants[g]); if(v) ub += (v.salePrice > 0 ? v.salePrice : (v.price||0)); }); return ub + ss; }
+
+    function toggleBag(id) {
+        const p = getProd(id); const sel = currentSelections[id]; const cid = btoa(encodeURIComponent(`${p.id}|${JSON.stringify(sel.variants)}|${JSON.stringify(sel.specs)}`));
+        const idx = cart.findIndex(i => i.cartId === cid);
+        if(idx > -1) { cart[idx].qty === sel.qty ? cart.splice(idx, 1) : cart[idx].qty = sel.qty; } else { cart.push({ product: p, cartId: cid, selections: JSON.parse(JSON.stringify(sel)), qty: sel.qty, index: id }); }
+        updateBtnState(id); updateCartUI();
+    }
+
+    function updateBtnState(id) {
+        let b = document.getElementById(`btn-${id}`); if(!b) return;
+        const sel = currentSelections[id]; const cid = btoa(encodeURIComponent(`${id}|${JSON.stringify(sel.variants)}|${JSON.stringify(sel.specs)}`));
+        let cItem = cart.find(i => i.cartId === cid);
+        if(cItem) { b.innerText = cItem.qty === sel.qty ? "REMOVE" : "UPDATE BAG"; cItem.qty === sel.qty ? b.classList.add('added') : b.classList.remove('added'); } 
+        else { b.innerText = "ADD"; b.classList.remove('added'); }
+    }
+
+    function adjustQty(cid, amt) { const i = cart.find(x => x.cartId === cid); if(i) { i.qty += amt; if(i.qty <= 0) cart = cart.filter(x => x.cartId !== cid); } updateCartUI(); if(i) updateBtnState(i.index); }
+
+    function updateCartUI() {
+        let tq = 0; let tv = 0;
+        const html = cart.map(i => {
+            tq += i.qty; let up = calcCartPrice(i); tv += (up * i.qty);
+            let pDisp = up === 0 ? 'FREE' : formatPrice(up); let opts = [...Object.values(i.selections.variants)]; Object.values(i.selections.specs).forEach(g => g.forEach(s => opts.push(`+${s}`)));
+            return `
+                <div class="flex mb-[30px] items-center gap-[15px]">
+                    <img src="${i.product.imgs[0]}" class="w-[90px] h-[90px] object-cover cursor-pointer rounded border border-bordercolor" onclick="goToProduct('${i.index}')">
+                    <div class="flex-grow grid grid-cols-[1fr_auto] gap-2 items-center">
+                        <div class="flex flex-col cursor-pointer pr-2" onclick="goToProduct('${i.index}')"><span class="font-bold text-[13px]">${i.product.name}</span>${opts.length>0?`<div class="text-[10px] text-muted mt-1">${opts.join(' | ')}</div>`:''}</div>
+                        <span class="font-bold text-[13px]">${pDisp}</span> <span class="self-center text-muted text-[11px] font-bold">QTY</span>
+                        <div class="flex gap-[15px] items-center"><button class="border border-bordercolor p-1 rounded cursor-pointer transition-colors hover:opacity-70" onclick="adjustQty('${i.cartId}', -1)"><svg class="w-4 h-4" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.5 12h-15" /></svg></button><span class="font-bold text-[14px] w-4 text-center">${i.qty}</span><button class="border border-bordercolor p-1 rounded cursor-pointer transition-colors hover:opacity-70" onclick="adjustQty('${i.cartId}', 1)"><svg class="w-4 h-4" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.5v15m7.5-7.5h-15" /></svg></button></div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+        document.getElementById('cart-content').innerHTML = html || '<div class="text-center py-10 font-bold text-muted">BAG IS EMPTY</div>';
+        document.getElementById('cart-total-price').innerText = formatPrice(tv); document.querySelectorAll('#cart-count, #modal-cart-count').forEach(c => c.innerText = tq);
+    }
+
+    function checkoutWhatsapp() {
+        if(cart.length === 0) return alert("Bag is empty"); let msg = "Hello! I would like to order:\n\n"; let tv = 0;
+        cart.forEach(i => { let up = calcCartPrice(i); tv += (up * i.qty); let o = [...Object.values(i.selections.variants)]; Object.values(i.selections.specs).forEach(g => g.forEach(s => o.push(`+${s}`))); msg += `▪ ${i.qty}x ${i.product.name}${o.length>0?` (${o.join(', ')})`:''} - ${up===0?'Free':formatPrice(up)+'/ea'}\n`; });
+        msg += `\n*TOTAL: ${formatPrice(tv)}*`; window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`, '_blank');
+    }
+    function checkoutWhatsappSingle(id) {
+        let p = getProd(id); let s = currentSelections[id]; let up = calcCartPrice({product:p, selections:s, qty:s.qty}); let o = [...Object.values(s.variants)]; Object.values(s.specs).forEach(g => g.forEach(x => o.push(`+${x}`))); let msg = `Hello! I would like to order:\n\n▪ ${s.qty}x ${p.name}${o.length>0?` (${o.join(', ')})`:''} - ${up===0?'Free':formatPrice(up)+'/ea'}\n\n*TOTAL: ${formatPrice(up*s.qty)}*`; window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`, '_blank');
+    }
+
+    // --- FULLSCREEN LOGIC ---
+    let fsScale = 1, fsPanX = 0, fsPanY = 0, isFsDragging = false, fsStartX = 0, fsStartY = 0, pinchDist = 0, pinchScale = 1, pinchCenter = {x:0, y:0}, lastFsTap = 0;
+    function applyFsTransform(img) { img.style.transform = `translate(${fsPanX}px, ${fsPanY}px) scale(${fsScale})`; fsScale > 1 ? img.classList.add('zoomed') : img.classList.remove('zoomed'); }
+    function doZoom(e, img, nScale, cX, cY) { nScale = Math.min(Math.max(1, nScale), 5); if(nScale===fsScale)return; if(nScale===1){ fsPanX=0;fsPanY=0;fsScale=1; } else { let dx=cX-window.innerWidth/2, dy=cY-window.innerHeight/2, r=nScale/fsScale; fsPanX=dx-(dx-fsPanX)*r; fsPanY=dy-(dy-fsPanY)*r; fsScale=nScale; } applyFsTransform(img); }
+    function toggleFullscreen(id) { const m = document.getElementById(`media-${id}`); const b = document.getElementById(`fs-btn-${id}`); if (m.classList.contains('is-fullscreen')) { m.classList.remove('is-fullscreen'); b.querySelector('.fs-expand').style.display='block'; b.querySelector('.fs-close').style.display='none'; document.getElementById('product-slider').style.overflowY='auto'; fsScale=1;fsPanX=0;fsPanY=0; m.querySelectorAll('.carousel-slide img').forEach(img => { img.style.transform=''; img.classList.remove('zoomed'); }); } else { m.classList.add('is-fullscreen'); b.querySelector('.fs-expand').style.display='none'; b.querySelector('.fs-close').style.display='block'; document.getElementById('product-slider').style.overflowY='hidden'; } }
+    document.addEventListener('wheel', (e) => { if(document.querySelector('.is-fullscreen')) { const fsM = e.target.closest('.is-fullscreen'); if (fsM) { e.preventDefault(); const img = getActiveZoomableImg(fsM); if(img) doZoom(e, img, fsScale + e.deltaY * -0.005, e.clientX, e.clientY); } } }, { passive: false });
+    document.addEventListener('touchstart', (e) => { const fsM = e.target.closest('.is-fullscreen'); if (fsM) { const img = getActiveZoomableImg(fsM); if(!img)return; if(e.touches.length===2) { pinchDist=Math.hypot(e.touches[0].pageX-e.touches[1].pageX, e.touches[0].pageY-e.touches[1].pageY); pinchScale=fsScale; pinchCenter={x:(e.touches[0].clientX+e.touches[1].clientX)/2, y:(e.touches[0].clientY+e.touches[1].clientY)/2}; } else if(e.touches.length===1) { isFsDragging=true; fsStartX=e.touches[0].clientX; fsStartY=e.touches[0].clientY; } } }, { passive: false });
+    document.addEventListener('touchmove', (e) => { const fsM = e.target.closest('.is-fullscreen'); if (fsM) { const img = getActiveZoomableImg(fsM); if(!img)return; e.preventDefault(); if(e.touches.length===2 && pinchDist>0) { let cd = Math.hypot(e.touches[0].pageX-e.touches[1].pageX, e.touches[0].pageY-e.touches[1].pageY); doZoom(e, img, pinchScale*(cd/pinchDist), pinchCenter.x, pinchCenter.y); } else if(e.touches.length===1 && isFsDragging && fsScale>1) { fsPanX+=(e.touches[0].clientX-fsStartX); fsPanY+=(e.touches[0].clientY-fsStartY); fsStartX=e.touches[0].clientX; fsStartY=e.touches[0].clientY; applyFsTransform(img); } } }, { passive: false });
+    document.addEventListener('touchend', (e) => { const fsM = e.target.closest('.is-fullscreen'); if (fsM) { const img = getActiveZoomableImg(fsM); if(!img)return; if(e.touches.length<2) pinchDist=0; if(e.touches.length===0) isFsDragging=false; if(e.changedTouches.length===1 && e.touches.length===0) { let ct = new Date().getTime(); if(ct-lastFsTap<300 && ct-lastFsTap>0) { doZoom(e, img, fsScale>1?1:3, e.changedTouches[0].clientX, e.changedTouches[0].clientY); e.preventDefault(); } lastFsTap=ct; } } }, { passive: false });
+    document.addEventListener('mousedown', (e) => { const fsM = e.target.closest('.is-fullscreen'); if (fsM && fsScale>1) { isFsDragging=true; fsStartX=e.clientX; fsStartY=e.clientY; e.preventDefault(); }});
+    document.addEventListener('mousemove', (e) => { if (isFsDragging) { const fsM = e.target.closest('.is-fullscreen'); if (fsM) { const img = getActiveZoomableImg(fsM); if(img) { fsPanX+=(e.clientX-fsStartX); fsPanY+=(e.clientY-fsStartY); fsStartX=e.clientX; fsStartY=e.clientY; applyFsTransform(img); } } }});
+    document.addEventListener('mouseup', () => isFsDragging=false); document.addEventListener('mouseleave', () => isFsDragging=false);
+    document.addEventListener('dblclick', (e) => { const fsM = e.target.closest('.is-fullscreen'); if (fsM) { const img = getActiveZoomableImg(fsM); if(img) doZoom(e, img, fsScale>1?1:3, e.clientX, e.clientY); }});
+    
+    function getActiveZoomableImg(fsM) { let id = fsM.id.split('-')[1]; let t = document.getElementById(`track-${id}`); let slide = t.querySelector('.active-slide'); return slide ? slide.querySelector('img') : null; }
+
+    window.onload = loadData;
+</script>
+
+</body>
+</html>
